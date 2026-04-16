@@ -140,24 +140,26 @@ const AdminLogin = ({ signIn, setupAdmin }: { signIn: any; setupAdmin: any }) =>
 };
 
 // === Generic CRUD helpers ===
-function useCrud<T extends { id: string }>(table: string) {
+function useCrud(table: "products" | "mods" | "roadmap_items" | "announcements") {
   const qc = useQueryClient();
   const query = useQuery({
     queryKey: [table],
     queryFn: async () => {
-      const { data, error } = await supabase.from(table).select("*").order("sort_order", { ascending: true }).order("created_at", { ascending: false });
+      const { data, error } = await supabase.from(table).select("*").order("created_at", { ascending: false });
       if (error) throw error;
-      return data as T[];
+      return data;
     },
   });
 
   const upsert = useMutation({
-    mutationFn: async (item: Partial<T>) => {
-      if ((item as any).id) {
-        const { error } = await supabase.from(table).update(item).eq("id", (item as any).id);
+    mutationFn: async (item: any) => {
+      if (item.id) {
+        const { id, created_at, updated_at, ...rest } = item;
+        const { error } = await supabase.from(table).update(rest).eq("id", id);
         if (error) throw error;
       } else {
-        const { error } = await supabase.from(table).insert(item as any);
+        const { id, created_at, updated_at, ...rest } = item;
+        const { error } = await supabase.from(table).insert(rest);
         if (error) throw error;
       }
     },
