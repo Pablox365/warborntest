@@ -5,12 +5,12 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { LogOut, Package, Box, Map, ShoppingCart, Megaphone, Plus, Pencil, Trash2, Save, X, Shield } from "lucide-react";
 
 const Admin = () => {
-  const { session, isAdmin, loading, signIn, signOut, setupAdmin } = useAdmin();
+  const { session, isAdmin, loading, signOut, loginWithMaster } = useAdmin();
   const [tab, setTab] = useState("products");
 
   if (loading) return <div className="min-h-screen bg-background flex items-center justify-center"><div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div>;
 
-  if (!session || !isAdmin) return <AdminLogin signIn={signIn} setupAdmin={setupAdmin} />;
+  if (!session || !isAdmin) return <AdminLogin loginWithMaster={loginWithMaster} />;
 
   return (
     <div className="min-h-screen bg-background">
@@ -60,36 +60,18 @@ const Admin = () => {
   );
 };
 
-// === Admin Login ===
-const AdminLogin = ({ signIn, setupAdmin }: { signIn: any; setupAdmin: any }) => {
-  const [mode, setMode] = useState<"login" | "setup">("login");
-  const [email, setEmail] = useState("");
+// === Admin Login (single password) ===
+const AdminLogin = ({ loginWithMaster }: { loginWithMaster: (pw: string) => Promise<{ error?: any; data?: any }> }) => {
   const [password, setPassword] = useState("");
-  const [masterPw, setMasterPw] = useState("");
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     setLoading(true);
-    const { error } = await signIn(email, password);
-    if (error) setError(error.message);
-    setLoading(false);
-  };
-
-  const handleSetup = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError("");
-    setSuccess("");
-    setLoading(true);
-    const { error, data } = await setupAdmin(email, password, masterPw);
-    if (error) setError(error.message);
-    else {
-      setSuccess(data?.message || "Admin creado. Ahora inicia sesión.");
-      setMode("login");
-    }
+    const { error } = await loginWithMaster(password);
+    if (error) setError(error.message ?? "Error de autenticación");
     setLoading(false);
   };
 
@@ -99,36 +81,30 @@ const AdminLogin = ({ signIn, setupAdmin }: { signIn: any; setupAdmin: any }) =>
         <div className="text-center mb-8">
           <Shield className="w-12 h-12 text-primary mx-auto mb-4" />
           <h1 className="font-heading text-xl tracking-[0.2em] mb-2">ADMIN PANEL</h1>
-          <p className="text-xs text-muted-foreground font-body">Panel de administración de Warborn</p>
+          <p className="text-xs text-muted-foreground font-body">Introduce la contraseña maestra</p>
         </div>
 
         <div className="bg-card border border-border rounded-xl p-6">
-          <div className="flex gap-2 mb-6">
-            <button onClick={() => setMode("login")} className={`flex-1 py-2 text-xs font-heading tracking-wider rounded-lg transition-all ${mode === "login" ? "bg-primary text-primary-foreground" : "bg-secondary text-muted-foreground"}`}>LOGIN</button>
-            <button onClick={() => setMode("setup")} className={`flex-1 py-2 text-xs font-heading tracking-wider rounded-lg transition-all ${mode === "setup" ? "bg-primary text-primary-foreground" : "bg-secondary text-muted-foreground"}`}>SETUP</button>
-          </div>
-
           {error && <div className="mb-4 p-3 bg-destructive/10 border border-destructive/30 rounded-lg text-xs text-destructive">{error}</div>}
-          {success && <div className="mb-4 p-3 bg-primary/10 border border-primary/30 rounded-lg text-xs text-primary">{success}</div>}
 
-          {mode === "login" ? (
-            <form onSubmit={handleLogin} className="space-y-4">
-              <input type="email" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} className="w-full px-4 py-3 bg-secondary/50 border border-border rounded-lg text-sm focus:border-primary focus:outline-none transition-colors" required />
-              <input type="password" placeholder="Contraseña" value={password} onChange={e => setPassword(e.target.value)} className="w-full px-4 py-3 bg-secondary/50 border border-border rounded-lg text-sm focus:border-primary focus:outline-none transition-colors" required />
-              <button type="submit" disabled={loading} className="w-full py-3 bg-primary text-primary-foreground rounded-lg font-heading tracking-wider text-xs font-bold hover:brightness-110 transition-all disabled:opacity-50">
-                {loading ? "CARGANDO..." : "INICIAR SESIÓN"}
-              </button>
-            </form>
-          ) : (
-            <form onSubmit={handleSetup} className="space-y-4">
-              <input type="password" placeholder="Contraseña maestra (WARBORN)" value={masterPw} onChange={e => setMasterPw(e.target.value)} className="w-full px-4 py-3 bg-secondary/50 border border-border rounded-lg text-sm focus:border-primary focus:outline-none transition-colors" required />
-              <input type="email" placeholder="Email del admin" value={email} onChange={e => setEmail(e.target.value)} className="w-full px-4 py-3 bg-secondary/50 border border-border rounded-lg text-sm focus:border-primary focus:outline-none transition-colors" required />
-              <input type="password" placeholder="Contraseña del admin" value={password} onChange={e => setPassword(e.target.value)} className="w-full px-4 py-3 bg-secondary/50 border border-border rounded-lg text-sm focus:border-primary focus:outline-none transition-colors" required />
-              <button type="submit" disabled={loading} className="w-full py-3 bg-primary text-primary-foreground rounded-lg font-heading tracking-wider text-xs font-bold hover:brightness-110 transition-all disabled:opacity-50">
-                {loading ? "CREANDO..." : "CREAR ADMIN"}
-              </button>
-            </form>
-          )}
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <input
+              type="password"
+              placeholder="Contraseña"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full px-4 py-3 bg-secondary/50 border border-border rounded-lg text-sm focus:border-primary focus:outline-none transition-colors"
+              autoFocus
+              required
+            />
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full py-3 bg-primary text-primary-foreground rounded-lg font-heading tracking-wider text-xs font-bold hover:brightness-110 transition-all disabled:opacity-50"
+            >
+              {loading ? "VERIFICANDO..." : "ACCEDER"}
+            </button>
+          </form>
         </div>
 
         <div className="text-center mt-6">
