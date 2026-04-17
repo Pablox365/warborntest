@@ -1,4 +1,6 @@
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import { Shield } from "lucide-react";
 import warbornNormal from "@/assets/warborn-normal.png";
 
 const navLinks = [
