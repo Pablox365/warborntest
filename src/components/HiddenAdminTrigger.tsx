@@ -6,14 +6,25 @@ const HiddenAdminTrigger = () => {
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
-    const handler = (e: KeyboardEvent) => {
-      if (e.ctrlKey && e.shiftKey && (e.key === "A" || e.key === "a")) {
+    const keyHandler = (e: KeyboardEvent) => {
+      // Ctrl+Shift+A (or Cmd+Shift+A on macOS)
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === "A" || e.key === "a" || e.code === "KeyA")) {
         e.preventDefault();
+        e.stopPropagation();
         setOpen((v) => !v);
       }
     };
-    window.addEventListener("keydown", handler);
-    return () => window.removeEventListener("keydown", handler);
+    const customHandler = () => setOpen(true);
+
+    window.addEventListener("keydown", keyHandler, true); // capture phase
+    document.addEventListener("keydown", keyHandler, true);
+    window.addEventListener("warborn:open-admin", customHandler);
+
+    return () => {
+      window.removeEventListener("keydown", keyHandler, true);
+      document.removeEventListener("keydown", keyHandler, true);
+      window.removeEventListener("warborn:open-admin", customHandler);
+    };
   }, []);
 
   // Lock body scroll when open
