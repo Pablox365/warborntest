@@ -26,7 +26,7 @@ export type LiveServer = {
   updatedAt: string | null;
 };
 
-export type LiveServers = { normal: LiveServer; hardcore: LiveServer; fetchedAt: string };
+export type LiveServers = { normal: LiveServer; hardcore: LiveServer; milsim: LiveServer; fetchedAt: string };
 
 export const REFETCH_MS = 60_000;
 
