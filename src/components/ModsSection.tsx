@@ -30,7 +30,7 @@ const ModsSection = () => {
           visible={isVisible}
           label="WORKSHOP · LIVE"
           title="MODS ACTIVOS"
-          subtitle="Sincronizado en tiempo real desde el servidor Normal de BattleMetrics."
+          subtitle="Sincronizado en tiempo real desde BattleMetrics. Filtra por servidor."
         />
 
         <div className={`flex items-center justify-center gap-3 mt-6 transition-opacity duration-500 ${isVisible ? "opacity-100" : "opacity-0"}`}>
