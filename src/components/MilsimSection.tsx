@@ -116,10 +116,112 @@ const MilsimSection = () => {
               </a>
             </div>
           </div>
+
+          {/* Live status + Mods */}
+          <div className="border-t border-white/10 bg-black/40 p-6 md:p-10">
+            <div className="flex items-center justify-between gap-3 mb-5">
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] font-heading tracking-[0.4em] text-white/80">
+                  ESTADO DEL SERVIDOR · LIVE
+                </span>
+              </div>
+              {isLoading && !live ? (
+                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/10">
+                  <Loader2 className="w-3 h-3 animate-spin text-white/70" />
+                  <span className="text-[8px] font-heading tracking-[0.15em] text-white/70">CARGANDO</span>
+                </div>
+              ) : (
+                <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full ${live?.online ? "bg-emerald-500/20" : "bg-red-500/20"}`}>
+                  <span className={`w-2 h-2 rounded-full ${live?.online ? "bg-emerald-400 animate-status-pulse" : "bg-red-400"}`} />
+                  <span className={`text-[8px] font-heading tracking-[0.15em] ${live?.online ? "text-emerald-300" : "text-red-300"}`}>
+                    {live?.online ? "LIVE" : "OFFLINE"}
+                  </span>
+                </div>
+              )}
+            </div>
+
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-3 mb-5">
+              <StatBox icon={<Users className="w-3.5 h-3.5 text-white" />} label="JUGADORES" value={live ? `${live.players}/${live.maxPlayers}` : "—"} />
+              <StatBox icon={<MapPin className="w-3.5 h-3.5 text-white" />} label="MAPA" value={live?.map ?? "—"} />
+              <StatBox icon={<Wifi className="w-3.5 h-3.5 text-white" />} label="ESTADO" value={live ? (live.online ? "ONLINE" : "OFFLINE") : "..."} />
+              <StatBox icon={<Package className="w-3.5 h-3.5 text-white" />} label="MODS" value={live ? String(live.modCount) : "—"} />
+            </div>
+
+            <div className="flex items-center gap-2 md:gap-3 p-2.5 md:p-3 bg-white/5 hover:bg-white/10 rounded-lg mb-6 transition-colors overflow-hidden">
+              <span className="text-[8px] font-heading tracking-[0.15em] text-white/60 shrink-0">IP:</span>
+              <code className="text-[10px] md:text-[11px] font-mono-code text-white/90 truncate">{live?.address || "—"}</code>
+              <button
+                onClick={copyIp}
+                disabled={!live?.address}
+                className="ml-auto text-white/70 hover:text-white transition-all hover:scale-110 disabled:opacity-30 shrink-0"
+                aria-label="Copiar IP"
+              >
+                <Copy className="w-3.5 h-3.5" />
+              </button>
+              <a
+                href="https://www.battlemetrics.com/servers/reforger/38109381"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-white/70 hover:text-white transition-all flex items-center gap-1 text-[9px] font-heading tracking-[0.15em] shrink-0"
+              >
+                <ExternalLink className="w-3 h-3" /> BM
+              </a>
+            </div>
+
+            {/* Mods */}
+            <div>
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-[10px] font-heading tracking-[0.4em] text-white/80">
+                  MODS REQUERIDOS ({live?.modCount ?? 0})
+                </span>
+                {visibleMods.length > 12 && (
+                  <button
+                    onClick={() => setShowAllMods((v) => !v)}
+                    className="text-[10px] font-heading tracking-[0.2em] text-white/70 hover:text-white transition-colors"
+                  >
+                    {showAllMods ? "VER MENOS" : "VER TODOS"}
+                  </button>
+                )}
+              </div>
+
+              {visibleMods.length === 0 ? (
+                <div className="text-[11px] text-white/60 font-body py-4 text-center bg-white/5 rounded-lg">
+                  {isLoading ? "Cargando mods..." : "No hay mods disponibles."}
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
+                  {modsToShow.map((mod) => (
+                    <a
+                      key={mod.modId}
+                      href={`https://reforger.armaplatform.com/workshop/${mod.modId}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="group flex items-center gap-2 p-2.5 bg-white/5 hover:bg-white/10 rounded-lg border border-white/10 hover:border-white/30 transition-all"
+                    >
+                      <Package className="w-3.5 h-3.5 text-white/60 group-hover:text-white shrink-0" />
+                      <div className="min-w-0 flex-1">
+                        <div className="text-[11px] font-heading font-bold text-white truncate">{mod.name}</div>
+                        <div className="text-[9px] font-mono-code text-white/50 truncate">v{mod.version}</div>
+                      </div>
+                      <ExternalLink className="w-3 h-3 text-white/40 group-hover:text-white shrink-0" />
+                    </a>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       </div>
     </section>
   );
 };
+
+const StatBox = ({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) => (
+  <div className="text-center p-2.5 md:p-3 bg-white/5 rounded-lg hover:bg-white/10 transition-colors">
+    <div className="flex justify-center mb-1">{icon}</div>
+    <div className="text-[8px] font-heading tracking-[0.15em] text-white/60 mb-0.5">{label}</div>
+    <div className="text-[10px] md:text-xs font-heading font-bold text-white truncate">{value}</div>
+  </div>
+);
 
 export default MilsimSection;
