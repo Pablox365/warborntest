@@ -80,7 +80,7 @@ const HeroSection = () => {
                 className="absolute inset-0 -z-10 blur-3xl opacity-40 bg-gradient-to-r from-primary/40 via-primary/10 to-primary/40 animate-glow-pulse"
               />
               <h2
-                className="warborn-wordmark font-heading font-black tracking-[0.18em] leading-none uppercase text-[3.5rem] sm:text-[5rem] md:text-[7rem] lg:text-[9rem] xl:text-[10.5rem] select-none"
+                className="warborn-wordmark font-heading font-black tracking-[0.12em] sm:tracking-[0.18em] leading-none uppercase text-[2.75rem] sm:text-[5rem] md:text-[7rem] lg:text-[9rem] xl:text-[10.5rem] select-none"
                 data-text="WARBORN"
               >
                 WARBORN
