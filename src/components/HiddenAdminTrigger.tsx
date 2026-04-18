@@ -22,15 +22,17 @@ const HiddenAdminTrigger = () => {
 
   return (
     <>
-      {/* Discrete physical admin button (bottom-right) */}
-      <button
-        onClick={() => setOpen(true)}
-        aria-label="Abrir panel admin"
-        title="Admin"
-        className="fixed bottom-3 right-3 z-[150] w-9 h-9 flex items-center justify-center rounded-full bg-card/60 backdrop-blur border border-border/50 text-muted-foreground/60 hover:text-primary hover:border-primary/60 hover:bg-card transition-all"
-      >
-        <Shield className="w-4 h-4" />
-      </button>
+      {/* Admin button at the very bottom of the page */}
+      <div className="w-full flex justify-center py-6 bg-background border-t border-border/50">
+        <button
+          onClick={() => setOpen(true)}
+          aria-label="Abrir panel admin"
+          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-card border border-border text-muted-foreground hover:text-primary hover:border-primary/60 transition-all text-[10px] font-heading tracking-[0.3em]"
+        >
+          <Shield className="w-3.5 h-3.5" />
+          ADMIN
+        </button>
+      </div>
 
       {open && (
         <div
