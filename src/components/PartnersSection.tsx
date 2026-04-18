@@ -1,9 +1,22 @@
+import { useState } from "react";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { SectionHeader } from "./ServersSection";
 import hostingLogo from "@/assets/logowithtext.png";
+import { Copy, Check, Tag } from "lucide-react";
+import { toast } from "sonner";
 
 const PartnersSection = () => {
   const { ref, isVisible } = useScrollAnimation();
+  const [copied, setCopied] = useState(false);
+
+  const code = "WARBORN";
+
+  const copy = async () => {
+    await navigator.clipboard.writeText(code);
+    setCopied(true);
+    toast.success("Código copiado");
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   return (
     <section id="partners" className="relative py-24 md:py-32" ref={ref}>
@@ -12,21 +25,24 @@ const PartnersSection = () => {
 
         <div className="max-w-xl mx-auto mt-12">
           <div
-            className={`bg-card border border-border rounded-lg p-8 text-center card-hover animate-border-glow transition-all duration-700 delay-300 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}
+            className={`bg-card border border-border rounded-xl p-8 text-center card-hover animate-border-glow transition-all duration-700 delay-300 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}
           >
-            <div className="text-[10px] font-heading tracking-[0.4em] text-primary mb-4">HOSTING OFICIAL</div>
-            <img src={hostingLogo} alt="Hosting Partner" className="h-12 md:h-16 mx-auto mb-6" />
-            <p className="text-sm text-muted-foreground mb-6">
-              Infraestructura de servidores dedicada de alto rendimiento para garantizar la mejor experiencia de juego.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <a
-                href="#"
-                className="px-6 py-3 border border-primary text-primary rounded font-heading tracking-widest text-xs hover:bg-primary hover:text-primary-foreground transition-all duration-300"
-              >
-                VER PLANES
-              </a>
+            <div className="flex items-center justify-center gap-2 mb-4">
+              <Tag className="w-3 h-3 text-primary" />
+              <span className="text-[10px] font-heading tracking-[0.4em] text-primary">CÓDIGO DE DESCUENTO</span>
             </div>
+            <img src={hostingLogo} alt="Hosting Partner" className="h-12 md:h-16 mx-auto mb-6" />
+            <p className="text-sm text-muted-foreground mb-6 font-body">
+              Infraestructura de servidores dedicada de alto rendimiento. Usa nuestro código en su web para obtener descuento.
+            </p>
+            <button
+              onClick={copy}
+              className="group w-full sm:w-auto inline-flex items-center justify-center gap-3 px-8 py-4 border-2 border-dashed border-primary/40 hover:border-primary text-primary rounded-xl font-heading tracking-[0.4em] text-base font-bold hover:bg-primary/10 transition-all duration-300 hover:scale-[1.02]"
+            >
+              {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4 group-hover:scale-110 transition-transform" />}
+              {code}
+            </button>
+            <p className="text-[10px] font-heading tracking-[0.2em] text-muted-foreground mt-3">CLICK PARA COPIAR</p>
           </div>
         </div>
       </div>
