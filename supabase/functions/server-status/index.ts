@@ -6,6 +6,7 @@ const corsHeaders = {
 const SERVERS = {
   normal: "38708697",
   hardcore: "38672956",
+  milsim: "38109381",
 };
 
 type Mod = { modId: string; name: string; version: string };
