@@ -44,6 +44,36 @@ export type Database = {
         }
         Relationships: []
       }
+      feedback: {
+        Row: {
+          approved: boolean
+          created_at: string
+          id: string
+          message: string
+          name: string
+          rating: number
+          updated_at: string
+        }
+        Insert: {
+          approved?: boolean
+          created_at?: string
+          id?: string
+          message: string
+          name: string
+          rating: number
+          updated_at?: string
+        }
+        Update: {
+          approved?: boolean
+          created_at?: string
+          id?: string
+          message?: string
+          name?: string
+          rating?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       mods: {
         Row: {
           active: boolean
@@ -152,6 +182,7 @@ export type Database = {
           description: string | null
           id: string
           image_url: string | null
+          images: string[]
           name: string
           price: number
           sizes: string[] | null
@@ -165,6 +196,7 @@ export type Database = {
           description?: string | null
           id?: string
           image_url?: string | null
+          images?: string[]
           name: string
           price: number
           sizes?: string[] | null
@@ -178,6 +210,7 @@ export type Database = {
           description?: string | null
           id?: string
           image_url?: string | null
+          images?: string[]
           name?: string
           price?: number
           sizes?: string[] | null
