@@ -1,0 +1,1 @@
+UPDATE public.products SET active = false WHERE id = 'b4d59507-5dbb-4d63-8c38-a9817a9e8195';
