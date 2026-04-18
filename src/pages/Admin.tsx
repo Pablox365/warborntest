@@ -466,7 +466,85 @@ const FeedbackAdmin = () => {
 };
 
 // === Reusable Edit Form ===
-type FieldDef = { key: string; label: string; type: "text" | "textarea" | "number" | "select" | "boolean" | "csv"; options?: string[] };
+type FieldDef = { key: string; label: string; type: "text" | "textarea" | "number" | "select" | "boolean" | "csv" | "image" | "image_list"; options?: string[] };
+
+const uploadToImages = async (file: File): Promise<string> => {
+  const ext = file.name.split(".").pop() || "jpg";
+  const path = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+  const { error } = await supabase.storage.from("images").upload(path, file, {
+    cacheControl: "3600",
+    upsert: false,
+    contentType: file.type,
+  });
+  if (error) throw error;
+  const { data } = supabase.storage.from("images").getPublicUrl(path);
+  return data.publicUrl;
+};
+
+const ImageUploadField = ({ value, onChange }: { value: string; onChange: (url: string) => void }) => {
+  const [uploading, setUploading] = useState(false);
+  const handleFile = async (file: File | undefined) => {
+    if (!file) return;
+    setUploading(true);
+    try {
+      const url = await uploadToImages(file);
+      onChange(url);
+    } catch (err: any) {
+      alert("Error al subir: " + (err?.message ?? "desconocido"));
+    } finally {
+      setUploading(false);
+    }
+  };
+  return (
+    <div className="space-y-2">
+      <div className="flex items-center gap-2">
+        <input type="text" value={value || ""} onChange={(e) => onChange(e.target.value)} placeholder="URL o sube un archivo" className="flex-1 px-3 py-2 bg-secondary/50 border border-border rounded-lg text-sm focus:border-primary focus:outline-none transition-colors" />
+        <label className="cursor-pointer px-3 py-2 bg-primary/10 border border-primary/30 rounded-lg text-xs font-heading tracking-wider text-primary hover:bg-primary/20 transition-colors whitespace-nowrap">
+          {uploading ? "SUBIENDO..." : "SUBIR"}
+          <input type="file" accept="image/*" className="hidden" disabled={uploading} onChange={(e) => handleFile(e.target.files?.[0])} />
+        </label>
+      </div>
+      {value && <img src={value} alt="preview" className="w-20 h-20 rounded-lg object-cover border border-border" />}
+    </div>
+  );
+};
+
+const ImageListField = ({ value, onChange }: { value: string[]; onChange: (urls: string[]) => void }) => {
+  const [uploading, setUploading] = useState(false);
+  const list = Array.isArray(value) ? value : [];
+  const handleFiles = async (files: FileList | null) => {
+    if (!files || files.length === 0) return;
+    setUploading(true);
+    try {
+      const urls = await Promise.all(Array.from(files).map(uploadToImages));
+      onChange([...list, ...urls]);
+    } catch (err: any) {
+      alert("Error al subir: " + (err?.message ?? "desconocido"));
+    } finally {
+      setUploading(false);
+    }
+  };
+  return (
+    <div className="space-y-2">
+      <label className="cursor-pointer inline-flex items-center gap-2 px-3 py-2 bg-primary/10 border border-primary/30 rounded-lg text-xs font-heading tracking-wider text-primary hover:bg-primary/20 transition-colors">
+        <Plus className="w-3 h-3" /> {uploading ? "SUBIENDO..." : "AÑADIR FOTOS"}
+        <input type="file" accept="image/*" multiple className="hidden" disabled={uploading} onChange={(e) => handleFiles(e.target.files)} />
+      </label>
+      {list.length > 0 && (
+        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2">
+          {list.map((url, idx) => (
+            <div key={idx} className="relative group">
+              <img src={url} alt={`img-${idx}`} className="w-full aspect-square rounded-lg object-cover border border-border" />
+              <button type="button" onClick={() => onChange(list.filter((_, i) => i !== idx))} aria-label="Eliminar" className="absolute top-1 right-1 w-6 h-6 flex items-center justify-center rounded-full bg-destructive text-destructive-foreground opacity-0 group-hover:opacity-100 transition-opacity">
+                <X className="w-3 h-3" />
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
 
 const EditForm = ({ item, fields, onSave, onCancel, saving }: { item: any; fields: FieldDef[]; onSave: (item: any) => void; onCancel: () => void; saving: boolean }) => {
   const [form, setForm] = useState<any>({ ...item });
@@ -475,7 +553,7 @@ const EditForm = ({ item, fields, onSave, onCancel, saving }: { item: any; field
     <div className="bg-card border border-primary/30 rounded-xl p-5 mb-6 animate-fade-up">
       <div className="grid gap-4 sm:grid-cols-2">
         {fields.map((f) => (
-          <div key={f.key} className={f.type === "textarea" || f.type === "csv" ? "sm:col-span-2" : ""}>
+          <div key={f.key} className={f.type === "textarea" || f.type === "csv" || f.type === "image_list" ? "sm:col-span-2" : ""}>
             <label className="text-[9px] font-heading tracking-[0.15em] text-muted-foreground mb-1 block">{f.label}</label>
             {f.type === "textarea" ? (
               <textarea value={form[f.key] || ""} onChange={e => setForm({ ...form, [f.key]: e.target.value })} rows={3} className="w-full px-3 py-2 bg-secondary/50 border border-border rounded-lg text-sm focus:border-primary focus:outline-none transition-colors resize-none" />
@@ -487,6 +565,10 @@ const EditForm = ({ item, fields, onSave, onCancel, saving }: { item: any; field
                 placeholder="https://..., https://..."
                 className="w-full px-3 py-2 bg-secondary/50 border border-border rounded-lg text-sm focus:border-primary focus:outline-none transition-colors resize-none"
               />
+            ) : f.type === "image" ? (
+              <ImageUploadField value={form[f.key] || ""} onChange={(url) => setForm({ ...form, [f.key]: url })} />
+            ) : f.type === "image_list" ? (
+              <ImageListField value={form[f.key] || []} onChange={(urls) => setForm({ ...form, [f.key]: urls })} />
             ) : f.type === "select" ? (
               <select value={form[f.key] || ""} onChange={e => setForm({ ...form, [f.key]: e.target.value })} className="w-full px-3 py-2 bg-secondary/50 border border-border rounded-lg text-sm focus:border-primary focus:outline-none transition-colors">
                 {f.options?.map(o => <option key={o} value={o}>{o}</option>)}
