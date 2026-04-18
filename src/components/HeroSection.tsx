@@ -1,13 +1,20 @@
 import { useEffect, useState } from "react";
 import Particles from "./Particles";
-import heroBg from "@/assets/hero-bg.jpg";
+import bgAds from "@/assets/bg-ads.jpg";
+import bgFlag from "@/assets/bg-flag.jpg";
+import bgTank from "@/assets/bg-tank.jpg";
+import bgHeli from "@/assets/bg-heli.jpg";
+import bgSpain from "@/assets/bg-spain.jpg";
 import warbornNormal from "@/assets/warborn-normal.png";
 import { Crosshair, Shield, Radio, ChevronDown, Loader2 } from "lucide-react";
 import { useLiveServers } from "@/hooks/useLiveServers";
 
+const SLIDES = [bgAds, bgTank, bgHeli, bgSpain, bgFlag];
+
 const HeroSection = () => {
   const [loaded, setLoaded] = useState(false);
   const [typedText, setTypedText] = useState("");
+  const [slide, setSlide] = useState(0);
   const fullText = "ARMA REFORGER";
   const { data, isLoading } = useLiveServers();
 
@@ -27,10 +34,24 @@ const HeroSection = () => {
     return () => clearInterval(timer);
   }, []);
 
+  useEffect(() => {
+    const id = setInterval(() => setSlide((s) => (s + 1) % SLIDES.length), 25000);
+    return () => clearInterval(id);
+  }, []);
+
   return (
     <section id="hero" className="relative min-h-screen flex items-center overflow-hidden">
+      {/* Slideshow background */}
       <div className="absolute inset-0">
-        <img src={heroBg} alt="" className={`w-full h-full object-cover transition-transform duration-[2s] ${loaded ? "scale-100" : "scale-110"}`} />
+        {SLIDES.map((src, i) => (
+          <img
+            key={src}
+            src={src}
+            alt=""
+            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-[2000ms] ${i === slide ? "opacity-100 scale-100" : "opacity-0 scale-105"}`}
+            style={{ transitionProperty: "opacity, transform", transitionDuration: "2000ms, 25000ms" }}
+          />
+        ))}
         <div className="absolute inset-0 bg-gradient-to-r from-background via-background/85 to-background/30" />
         <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-background/70" />
       </div>
@@ -116,7 +137,7 @@ const HeroSection = () => {
               CONECTARSE AL SERVIDOR
             </a>
             <a
-              href="https://discord.gg/"
+              href="https://discord.com/invite/warbornesp"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center justify-center gap-3 px-6 sm:px-8 py-3 sm:py-4 border border-border rounded-lg font-heading tracking-[0.15em] text-xs text-foreground hover:border-[#5865F2] hover:text-[#5865F2] hover:bg-[#5865F2]/5 hover:scale-[1.02] transition-all duration-300"
@@ -145,6 +166,18 @@ const HeroSection = () => {
             <ServerQuickStatus name="HARDCORE" players={data?.hardcore?.players ?? 0} maxPlayers={data?.hardcore?.maxPlayers ?? 0} online={!!data?.hardcore?.online} loading={isLoading} />
           </div>
         </div>
+      </div>
+
+      {/* Slide indicators */}
+      <div className="absolute bottom-20 right-6 flex flex-col gap-1.5 z-10">
+        {SLIDES.map((_, i) => (
+          <button
+            key={i}
+            onClick={() => setSlide(i)}
+            aria-label={`Slide ${i + 1}`}
+            className={`w-1 transition-all duration-500 rounded-full ${i === slide ? "h-8 bg-primary" : "h-3 bg-foreground/30 hover:bg-foreground/60"}`}
+          />
+        ))}
       </div>
 
       <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 animate-bounce-subtle">

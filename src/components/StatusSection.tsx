@@ -2,6 +2,8 @@ import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { SectionHeader } from "./ServersSection";
 import { Activity, Users, MapPin, Box, Globe, Wrench, ExternalLink, Loader2 } from "lucide-react";
 import { useLiveServers, type LiveServer } from "@/hooks/useLiveServers";
+import warbornNormal from "@/assets/warborn-normal.png";
+import warbornHardcore from "@/assets/warborn-hardcore-clean.png";
 
 const StatusSection = () => {
   const { ref, isVisible } = useScrollAnimation();
@@ -15,12 +17,13 @@ const StatusSection = () => {
           visible={isVisible}
           label="SISTEMA · TIEMPO REAL"
           title="ESTADO DE SERVIDORES"
-          subtitle="Sincronizado con BattleMetrics. Actualización cada 30s."
+          subtitle="Sincronizado con BattleMetrics. Actualización cada 60s."
         />
 
-        <div className="grid md:grid-cols-2 gap-5 md:gap-6 mt-10 md:mt-12">
+        <div className="grid md:grid-cols-2 gap-5 md:gap-6 mt-10 md:mt-12 items-stretch">
           <ServerPanel
             title="WARBORN NORMAL"
+            logo={warbornNormal}
             data={data?.normal}
             loading={isLoading}
             visible={isVisible}
@@ -29,6 +32,7 @@ const StatusSection = () => {
           />
           <ServerPanel
             title="WARBORN HARDCORE"
+            logo={warbornHardcore}
             data={data?.hardcore}
             loading={isLoading}
             visible={isVisible}
@@ -52,6 +56,7 @@ const iconMap: Record<string, React.ReactNode> = {
 
 const ServerPanel = ({
   title,
+  logo,
   data,
   loading,
   visible,
@@ -59,6 +64,7 @@ const ServerPanel = ({
   bmUrl,
 }: {
   title: string;
+  logo: string;
   data?: LiveServer;
   loading: boolean;
   visible: boolean;
@@ -72,19 +78,22 @@ const ServerPanel = ({
 
   return (
     <div
-      className={`relative bg-card border border-border rounded-xl overflow-hidden animate-hud-flicker transition-all duration-700 group hover:border-primary/30 ${
+      className={`relative bg-card border border-border rounded-xl overflow-hidden animate-hud-flicker transition-all duration-700 group hover:border-primary/30 flex flex-col ${
         visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
       }`}
       style={{ transitionDelay: `${delay}ms` }}
     >
-      <div className="flex items-center justify-between p-4 md:p-5 border-b border-border gap-2">
-        <div className="flex items-center gap-2 md:gap-3 min-w-0">
-          {loading && !data ? (
-            <Loader2 className="w-3 h-3 animate-spin text-muted-foreground shrink-0" />
-          ) : (
-            <div className={`w-2.5 h-2.5 rounded-full shrink-0 ${online ? "bg-primary animate-status-pulse" : "bg-destructive"}`} />
-          )}
-          <span className="font-heading tracking-[0.15em] text-[11px] md:text-xs font-bold truncate">{title}</span>
+      <div className="flex items-center justify-between p-4 md:p-5 border-b border-border gap-2 min-h-[64px]">
+        <div className="flex items-center gap-3 min-w-0">
+          <img src={logo} alt={title} className="h-8 md:h-9 w-auto object-contain shrink-0" />
+          <div className="flex items-center gap-2 min-w-0">
+            {loading && !data ? (
+              <Loader2 className="w-3 h-3 animate-spin text-muted-foreground shrink-0" />
+            ) : (
+              <div className={`w-2.5 h-2.5 rounded-full shrink-0 ${online ? "bg-primary animate-status-pulse" : "bg-destructive"}`} />
+            )}
+            <span className="font-heading tracking-[0.15em] text-[11px] md:text-xs font-bold truncate">{title}</span>
+          </div>
         </div>
         <span className={`text-[8px] md:text-[9px] font-heading tracking-[0.15em] px-2.5 md:px-3 py-1 rounded-full shrink-0 ${
           loading && !data
@@ -97,7 +106,7 @@ const ServerPanel = ({
         </span>
       </div>
 
-      <div className="grid grid-cols-2 gap-px bg-border">
+      <div className="grid grid-cols-2 gap-px bg-border flex-1">
         {[
           { label: "JUGADORES", value: data ? `${players}/${max}` : "—" },
           { label: "MAPA", value: data?.map ?? "—" },

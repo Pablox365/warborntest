@@ -36,22 +36,25 @@ const ServersSection = () => {
       <div className="container mx-auto px-4 relative z-10">
         <SectionHeader visible={isVisible} label="SERVIDORES · LIVE" title="ELIGE TU MODO" subtitle="Datos en tiempo real desde BattleMetrics." />
 
-        <div className="grid md:grid-cols-2 gap-5 md:gap-6 lg:gap-8 mt-10 md:mt-12">
+        <div className="grid md:grid-cols-2 gap-5 md:gap-6 lg:gap-8 mt-10 md:mt-12 items-stretch">
           {META.map((m, i) => {
             const live = data?.[m.key];
             return (
               <div
                 key={m.name}
-                className={`group relative bg-card border border-border rounded-xl overflow-hidden card-hover transition-all duration-700 ${
+                className={`group relative bg-card border border-border rounded-xl overflow-hidden card-hover transition-all duration-700 flex flex-col ${
                   isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
                 }`}
                 style={{ transitionDelay: `${i * 200 + 300}ms` }}
               >
                 <div className={`h-1 ${m.isNormal ? "bg-gradient-to-r from-primary/50 via-primary to-primary/50" : "bg-gradient-to-r from-red-500/50 via-red-500 to-red-500/50"}`} />
 
-                <div className="p-5 md:p-8">
-                  <div className="flex items-start justify-between gap-3 mb-5 md:mb-6">
-                    <img src={m.logo} alt={m.name} loading="lazy" className="h-10 md:h-14 group-hover:scale-105 transition-transform duration-300" />
+                <div className="p-5 md:p-8 flex flex-col flex-1">
+                  {/* Header with fixed-height logo container so both align */}
+                  <div className="flex items-start justify-between gap-3 mb-5 md:mb-6 min-h-[56px] md:min-h-[64px]">
+                    <div className="flex items-center h-14 md:h-16">
+                      <img src={m.logo} alt={m.name} loading="lazy" className="max-h-12 md:max-h-14 w-auto object-contain group-hover:scale-105 transition-transform duration-300" />
+                    </div>
                     <LiveBadge loading={isLoading || !!error} live={live} />
                   </div>
 
@@ -97,7 +100,7 @@ const ServersSection = () => {
                     </button>
                   </div>
 
-                  <div className="flex flex-col sm:flex-row gap-2">
+                  <div className="flex flex-col sm:flex-row gap-2 mt-auto">
                     <button className={`btn-military flex-1 py-3 rounded-lg font-heading tracking-[0.15em] text-[11px] md:text-xs font-bold transition-all flex items-center justify-center gap-2 hover:scale-[1.02] ${m.isNormal ? "bg-primary text-primary-foreground glow-green-sm" : "bg-red-600 text-foreground"} hover:brightness-110`}>
                       <Play className="w-3.5 h-3.5" />
                       CONECTARSE

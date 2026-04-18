@@ -1,6 +1,4 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
-import { Shield } from "lucide-react";
 import warbornNormal from "@/assets/warborn-normal.png";
 
 const navLinks = [
@@ -20,7 +18,6 @@ const Navbar = () => {
   useEffect(() => {
     const onScroll = () => {
       setScrolled(window.scrollY > 50);
-      // Track active section
       const sections = navLinks.map(l => l.href.slice(1));
       for (let i = sections.length - 1; i >= 0; i--) {
         const el = document.getElementById(sections[i]);
@@ -48,13 +45,9 @@ const Navbar = () => {
       }`}
     >
       <div className="flex items-center justify-between h-14 md:h-16 px-4 md:px-6">
-        {/* Logo */}
-        <button onClick={() => handleClick("#hero")} className="flex items-center gap-3 group">
-          <img src={warbornNormal} alt="Warborn" className="h-7 md:h-9 transition-transform duration-300 group-hover:scale-105" />
-          <div className="hidden sm:flex flex-col">
-            <span className="text-[10px] font-heading tracking-[0.3em] text-foreground leading-none">WARBORN</span>
-            <span className="text-[8px] font-heading tracking-[0.2em] text-muted-foreground leading-none">2026</span>
-          </div>
+        {/* Logo as button */}
+        <button onClick={() => handleClick("#hero")} className="flex items-center group" aria-label="Inicio Warborn">
+          <img src={warbornNormal} alt="Warborn" className="h-8 md:h-10 transition-transform duration-300 group-hover:scale-110 drop-shadow-[0_0_8px_hsl(142_70%_45%/0.4)]" />
         </button>
 
         {/* Desktop nav */}
@@ -79,15 +72,8 @@ const Navbar = () => {
 
         {/* Desktop actions */}
         <div className="hidden lg:flex items-center gap-2">
-          <Link
-            to="/admin"
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-heading tracking-[0.15em] text-muted-foreground hover:text-primary hover:bg-primary/10 transition-all duration-300"
-          >
-            <Shield className="w-3.5 h-3.5" />
-            ADMIN
-          </Link>
           <a
-            href="https://discord.gg/"
+            href="https://discord.com/invite/warbornesp"
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-[10px] font-heading tracking-[0.15em] text-muted-foreground hover:text-[#5865F2] hover:bg-[#5865F2]/10 transition-all duration-300"
@@ -106,7 +92,7 @@ const Navbar = () => {
         </div>
 
         {/* Mobile hamburger */}
-        <button className="lg:hidden flex flex-col gap-1.5 p-2" onClick={() => setMobileOpen(!mobileOpen)}>
+        <button className="lg:hidden flex flex-col gap-1.5 p-2" onClick={() => setMobileOpen(!mobileOpen)} aria-label="Menu">
           <span className={`w-5 h-0.5 bg-foreground transition-all duration-300 ${mobileOpen ? "rotate-45 translate-y-2" : ""}`} />
           <span className={`w-5 h-0.5 bg-foreground transition-all duration-300 ${mobileOpen ? "opacity-0" : ""}`} />
           <span className={`w-5 h-0.5 bg-foreground transition-all duration-300 ${mobileOpen ? "-rotate-45 -translate-y-2" : ""}`} />
@@ -130,15 +116,8 @@ const Navbar = () => {
               {l.label}
             </button>
           ))}
-          <Link
-            to="/admin"
-            onClick={() => setMobileOpen(false)}
-            className="flex items-center gap-2 px-4 py-2.5 font-heading tracking-[0.15em] text-xs rounded-lg text-muted-foreground hover:text-primary hover:bg-primary/10 transition-all"
-          >
-            <Shield className="w-3.5 h-3.5" /> ADMIN
-          </Link>
           <div className="flex gap-2 mt-3 px-2">
-            <a href="https://discord.gg/" target="_blank" rel="noopener noreferrer" className="flex-1 text-center px-4 py-2.5 border border-border rounded-lg font-heading tracking-[0.15em] text-[10px] hover:border-[#5865F2] hover:text-[#5865F2] transition-all">DISCORD</a>
+            <a href="https://discord.com/invite/warbornesp" target="_blank" rel="noopener noreferrer" className="flex-1 text-center px-4 py-2.5 border border-border rounded-lg font-heading tracking-[0.15em] text-[10px] hover:border-[#5865F2] hover:text-[#5865F2] transition-all">DISCORD</a>
             <button onClick={() => handleClick("#servers")} className="flex-1 text-center px-4 py-2.5 bg-primary text-primary-foreground rounded-lg font-heading tracking-[0.15em] text-[10px] font-bold">JUGAR</button>
           </div>
         </div>
