@@ -92,7 +92,7 @@ const HeroSection = () => {
 
           {/* Title */}
           <div className={`mb-4 transition-all duration-700 delay-200 ${loaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
-            <h1 className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-heading font-bold leading-tight">
+            <h1 className="text-2xl sm:text-4xl md:text-6xl lg:text-7xl font-heading font-bold leading-tight">
               <span className="block text-foreground">TU COMUNIDAD DE</span>
               <span className="text-shimmer text-glow-green">{typedText}</span>
               <span className="inline-block w-0.5 h-[0.8em] bg-primary ml-1 animate-glow-pulse" />
