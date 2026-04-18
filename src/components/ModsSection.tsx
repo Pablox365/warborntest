@@ -4,16 +4,24 @@ import { SectionHeader } from "./ServersSection";
 import { ExternalLink, Loader2, RefreshCw, Package, Search } from "lucide-react";
 import { useLiveServers, type LiveMod } from "@/hooks/useLiveServers";
 
+type ServerFilter = "normal" | "hardcore";
+
 const ModsSection = () => {
   const { ref, isVisible } = useScrollAnimation();
   const [search, setSearch] = useState("");
+  const [serverFilter, setServerFilter] = useState<ServerFilter>("normal");
   const { data, isLoading, isFetching, dataUpdatedAt } = useLiveServers();
 
-  const mods: LiveMod[] = data?.normal?.mods ?? [];
+  const mods: LiveMod[] = data?.[serverFilter]?.mods ?? [];
   const filtered = search
     ? mods.filter((m) => m.name.toLowerCase().includes(search.toLowerCase()))
     : mods;
   const lastUpdate = dataUpdatedAt ? new Date(dataUpdatedAt) : null;
+
+  const filters: { key: ServerFilter; label: string }[] = [
+    { key: "normal", label: "NORMAL" },
+    { key: "hardcore", label: "HARDCORE" },
+  ];
 
   return (
     <section id="mods" className="relative py-20 md:py-32 bg-card/30" ref={ref}>
