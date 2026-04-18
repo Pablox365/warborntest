@@ -7,43 +7,60 @@ export function useAdmin() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      setSession(session);
-      if (session?.user) {
-        const { data } = await supabase.rpc("has_role", {
-          _user_id: session.user.id,
-          _role: "admin",
-        });
-        setIsAdmin(!!data);
-      } else {
-        setIsAdmin(false);
-      }
-      setLoading(false);
-    });
+    let mounted = true;
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      if (session?.user) {
-        supabase.rpc("has_role", {
-          _user_id: session.user.id,
-          _role: "admin",
-        }).then(({ data }) => {
-          setIsAdmin(!!data);
+    const checkRole = async (s: any) => {
+      if (!s?.user) {
+        if (mounted) {
+          setIsAdmin(false);
           setLoading(false);
-        });
-      } else {
-        setLoading(false);
+        }
+        return;
       }
+      try {
+        const { data } = await supabase.rpc("has_role", {
+          _user_id: s.user.id,
+          _role: "admin",
+        });
+        if (mounted) setIsAdmin(!!data);
+      } catch {
+        if (mounted) setIsAdmin(false);
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    };
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, s) => {
+      if (!mounted) return;
+      setSession(s);
+      // Defer role check to avoid deadlocks inside the auth callback
+      setTimeout(() => checkRole(s), 0);
     });
 
-    return () => subscription.unsubscribe();
+    supabase.auth.getSession().then(({ data: { session: s } }) => {
+      if (!mounted) return;
+      setSession(s);
+      checkRole(s);
+    }).catch(() => {
+      if (mounted) setLoading(false);
+    });
+
+    // Safety net: never stay loading more than 5s
+    const timeout = setTimeout(() => {
+      if (mounted) setLoading(false);
+    }, 5000);
+
+    return () => {
+      mounted = false;
+      clearTimeout(timeout);
+      subscription.unsubscribe();
+    };
   }, []);
 
   const signOut = async () => {
     await supabase.auth.signOut();
   };
 
-  // One-step login: only requires the master password "WARBORN"
   const loginWithMaster = async (masterPassword: string) => {
     const { data, error } = await supabase.functions.invoke("admin-setup", {
       body: { master_password: masterPassword },
