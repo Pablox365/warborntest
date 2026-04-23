@@ -1,5 +1,7 @@
 import SiteLayout from "@/components/SiteLayout";
 import Seo from "@/components/Seo";
+import SeoBreadcrumbs from "@/components/SeoBreadcrumbs";
+import SeoContent from "@/components/SeoContent";
 import StatusSection from "@/components/StatusSection";
 
 const Estado = () => (
@@ -10,7 +12,12 @@ const Estado = () => (
       path="/estado"
     />
     <div className="pt-24">
+      <SeoBreadcrumbs items={[{ name: "Estado", path: "/estado" }]} />
       <StatusSection />
+      <SeoContent
+        h1="Estado en vivo de los servidores Warborn"
+        intro="Monitoriza en tiempo real los servidores Warborn de Arma Reforger: jugadores conectados, ping, mapa actual y estado online/offline. Los datos provienen directamente de BattleMetrics y se actualizan automáticamente."
+      />
     </div>
   </SiteLayout>
 );
